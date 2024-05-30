@@ -3,21 +3,22 @@ from os import system
 import xml.etree.ElementTree as ET
 import requests
 import json
+from time import sleep
 
-def varreduraRede():
-
-# Transformar a variavel endereco_ip para poder usar na funcao tratamentoXML
-
-    while True:
-        endereco_ip = str(input("Digite um endereco IP valido: "))
-        try:
-            endereco_valido = enderecoValido(endereco_ip)
-            print(endereco_valido)
-            break
-        except ValueError:
-            print("Endereco IP não existe!")
-
-    sistema = system(f'nmap -sV {endereco_ip} -oX {endereco_ip}.xml')
+# def varreduraRede():
+#
+# # Transformar a variavel endereco_ip para poder usar na funcao tratamentoXML
+#
+#     while True:
+#         endereco_ip = str(input("Digite um endereco IP valido: "))
+#         try:
+#             endereco_valido = enderecoValido(endereco_ip)
+#             print(endereco_valido)
+#             break
+#         except ValueError:
+#             print("Endereco IP não existe!")
+#
+#     sistema = system(f'nmap -sV {endereco_ip} -oX {endereco_ip}.xml')
 
 
 def tratamentoXML():
@@ -78,28 +79,52 @@ def tratamentoXML():
 
 def apiNVD(dictCPE):
 
-    print(dictCPE)
-
     # Para pesquisar o CVE no NVD precisa formatar o CPE
     # Exemplo:
     #       cpe:/a:apache:http_server:2.2.8 --> cpe:2.3:a:apache:http_server:2.2.8
     # cpe:2.3: Significa a versão do NVD
     # a: aplicação e o: sistema operacional
 
+    lista_nao_encontrado = []
 
     for ip, cpe in dictCPE.items():
         for cpe_old in cpe:
             cpe_new = cpe_old.replace("/", "2.3:")
-            nvd = requests.get(
-                f"https://services.nvd.nist.gov/rest/json/cves/2.0?cpeName={cpe_new}")
-            nvd_json = nvd.json()
-            with open(f'{cpe_new}.json', 'w') as arquivo:
-                arquivo.write(json.dumps(nvd_json))
+            cpe_new_texto = cpe_new.replace(":", "_")
 
-            print(f"IP: {ip}, CPE: {cpe_new}")
+            try:
+                nvd = requests.get(f"https://services.nvd.nist.gov/rest/json/cves/2.0?cpeName={cpe_new}")
+                nvd_json = nvd.json()
 
+                with open(f'{cpe_new_texto}.json', 'w') as arquivo:
+                    arquivo.write(json.dumps(nvd_json))
 
-    # print(f"{cpe_old} --> {cpe_new}")
+            except requests.RequestException as e:
+                print(f"Falha na solicitação para {cpe_new}: {e}")
+                lista_nao_encontrado.append(cpe_new)
+                print(f"- - - - - {lista_nao_encontrado} - - - - -")
+
+            except Exception as e:
+                print(f"Erro inesperado ao processar {cpe_new}: {e}")
+
+            sleep(5)
+
+    for i in lista_nao_encontrado:
+        with open(f'Servicao_nao_encontrados.txt', 'w') as arquivo:
+            arquivo.write(i)
+
+    print("Lista criada e finalizado!")
+
+            # with open(f'{cpe_new_texto}.txt', 'w') as arquivo:
+            #     arquivo.write(cpe_new)
+
+            #print(f"IP: {ip}, CPE: {cpe_new}")
+
+    # nvd = requests.get(
+    #     f"https://services.nvd.nist.gov/rest/json/cves/2.0?cpeName={cpe_new}")
+    # nvd_json = nvd.json()
+    # with open(f'{cpe_new}.json', 'w') as arquivo:
+    #     arquivo.write(json.dumps(nvd_json))
 
 
 tratamentoXML()
