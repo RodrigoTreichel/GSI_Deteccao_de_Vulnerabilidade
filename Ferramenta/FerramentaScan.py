@@ -109,10 +109,7 @@ def apiNVD(dictCPE):
 
             sleep(5)
 
-    for i in lista_nao_encontrado:
-        with open(f'Servicao_nao_encontrados.txt', 'w') as arquivo:
-            arquivo.write(i)
-
+    print(lista_nao_encontrado)
     print("Lista criada e finalizado!")
 
             # with open(f'{cpe_new_texto}.txt', 'w') as arquivo:
