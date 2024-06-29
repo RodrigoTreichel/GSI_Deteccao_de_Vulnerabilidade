@@ -1,9 +1,11 @@
+import os
 from ipaddress import IPv4Network as enderecoValido
 from os import system
 import xml.etree.ElementTree as ET
 import requests
 import json
 from time import sleep
+from datetime import datetime
 
 # def varreduraRede():
 #
@@ -85,7 +87,15 @@ def apiNVD(dictCPE):
     # cpe:2.3: Significa a versão do NVD
     # a: aplicação e o: sistema operacional
 
+    global lista_nome_CPE
+    lista_nome_CPE = []
     lista_nao_encontrado = []
+
+    caminho_diretorio = f'./JSON_{datetime.now()}'.replace(":", "_")
+
+    os.makedirs(caminho_diretorio)
+
+    os.chdir(caminho_diretorio)
 
     for ip, cpe in dictCPE.items():
         for cpe_old in cpe:
@@ -98,6 +108,8 @@ def apiNVD(dictCPE):
 
                 with open(f'{cpe_new_texto}.json', 'w') as arquivo:
                     arquivo.write(json.dumps(nvd_json))
+
+                lista_nome_CPE.append(cpe_new_texto)
 
             except requests.RequestException as e:
                 print(f"Falha na solicitação para {cpe_new}: {e}")
@@ -112,18 +124,41 @@ def apiNVD(dictCPE):
     print(lista_nao_encontrado)
     print("Lista criada e finalizado!")
 
-            # with open(f'{cpe_new_texto}.txt', 'w') as arquivo:
-            #     arquivo.write(cpe_new)
 
-            #print(f"IP: {ip}, CPE: {cpe_new}")
+def manipulacaoJson(lista_nome_CPE):
 
-    # nvd = requests.get(
-    #     f"https://services.nvd.nist.gov/rest/json/cves/2.0?cpeName={cpe_new}")
-    # nvd_json = nvd.json()
-    # with open(f'{cpe_new}.json', 'w') as arquivo:
-    #     arquivo.write(json.dumps(nvd_json))
+    data = {}
+    for numero_CPE in range(len(lista_nome_CPE)):
+
+        with open(f'{lista_nome_CPE[numero_CPE]}.json','r') as arquivo:
+            texto = arquivo.read()
+            dados = json.loads(texto)
+
+        vulnerabilidade = dados['vulnerabilities']
+
+        for vuln in vulnerabilidade:
+            cve_id = vuln['cve']['id']
+            descricao_en = vuln['cve']['descriptions'][0]['value']
+
+            print(f'-------------{lista_nome_CPE[numero_CPE]}----------------')
+            print(f'CVE ID: {cve_id} - Descrição: {descricao_en}')
+            print('-----------------------------')
+            data.update({cve_id:descricao_en})
+
+    print('+++++++++++++++++++++++++++++')
+    print(data)
+
+    with open(f'data.json', 'w') as arquivo:
+        arquivo.write(json.dumps(data))
+
+
+        # Parte para montar o a estrutura do dicionario
+
+
+# Fazer um dicionario com uma lista do ID e Descrição. Exemplo: { "nginx.2.3.4": ["cve":2007-09-09,"descrição":"alguma coisa"]}
 
 
 tratamentoXML()
 apiNVD(dictCPE)
+manipulacaoJson(lista_nome_CPE)
 
