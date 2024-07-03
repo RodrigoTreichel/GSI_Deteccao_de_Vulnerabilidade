@@ -9,7 +9,8 @@ if __name__ == "__main__":
 
     # Etapa 2: Processamento do XML gerado pelo Nmap
     xml = ProcessoXML(f'saida_teste_1.xml')
-    dicionario_CPE = xml.tratamentoXM()
+
+    dicionario_CPE = xml.tratamentoXML()
 
     # Etapa 3: Consulta à API NVD
     api_nvd = APINVD()
@@ -19,6 +20,6 @@ if __name__ == "__main__":
     json = ProcessoJSON(lista_nome_CPE)
     data = json.manipulacaoJson()
 
-    # Etapa 5: Inserir no Banco de Dados
-    banco = MongoDataBase(data)
-    banco.inserirMongo()
+    # # Etapa 5: Inserir no Banco de Dados
+    # banco = MongoDataBase(data)
+    # banco.inserirMongo()

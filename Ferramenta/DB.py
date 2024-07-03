@@ -2,7 +2,7 @@ from pymongo import MongoClient
 
 class MongoDataBase:
 
-    def __init__(self, data):
+    def __init__(self, data:dict) -> None:
         self.data = data
 
     def inserirMongo(self):
@@ -20,4 +20,9 @@ class MongoDataBase:
 
         print(status)
 
+    def procurarMongo(self):
+        pass
+
+    def deletarMongo(self):
+        pass
 

@@ -35,11 +35,11 @@ from ipaddress import IPv4Network as enderecoValido
 #             print("Erro ao executar o Nmap")
 #
 class ProcessoXML:
-    def __init__(self, file_name):
+    def __init__(self, file_name: str) -> None:
         self.file_name = file_name
         self.dictCPE = {}
 
-    def tratamentoXM(self):
+    def tratamentoXML(self) -> list:
         tree = ET.parse(self.file_name)
         root = tree.getroot()
 
@@ -61,11 +61,11 @@ class ProcessoXML:
                 service = port.find('service')
                 statePort = port.find('state')
 
-                name = service.attrib.get('name', 'N/A') if service is not None else 'N/A'
-                version = service.attrib.get('version', 'N/A') if service is not None else 'N/A'
-                extrainfo = service.attrib.get('extrainfo', 'N/A') if service is not None else 'N/A'
-                product = service.attrib.get('product', 'N/A') if service is not None else 'N/A'
-                ostype = service.attrib.get('ostype', 'N/A') if service is not None else 'N/A'
+                name = service.attrib.get('name', 'N/A')
+                version = service.attrib.get('version', 'N/A')
+                extrainfo = service.attrib.get('extrainfo', 'N/A')
+                product = service.attrib.get('product', 'N/A')
+                ostype = service.attrib.get('ostype', 'N/A')
                 cpe = service.find('cpe').text if service is not None and service.find('cpe') is not None else 'N/A'
                 state = statePort.attrib.get('state', 'N/A') if statePort is not None else 'N/A'
 
@@ -81,11 +81,11 @@ class ProcessoXML:
 
 
 class APINVD:
-    def __init__(self):
+    def __init__(self) -> None:
         self.lista_nome_CPE = []
         self.lista_nao_encontrado = []
 
-    def consultarAPI(self, dictCPE):
+    def consultarAPI(self, dictCPE:list) -> list:
         caminho_diretorio = f'./JSON_{datetime.now()}'.replace(":", "_")
         os.makedirs(caminho_diretorio)
         os.chdir(caminho_diretorio)
@@ -120,11 +120,11 @@ class APINVD:
 
 
 class ProcessoJSON:
-    def __init__(self, lista_nome_CPE):
+    def __init__(self, lista_nome_CPE: list) -> None:
         self.lista_nome_CPE = lista_nome_CPE
         self.data = {}
 
-    def manipulacaoJson(self):
+    def manipulacaoJson(self) -> dict:
 
         for numero_CPE in range(len(self.lista_nome_CPE)):
             with open(f'{self.lista_nome_CPE[numero_CPE]}.json', 'r') as arquivo:
