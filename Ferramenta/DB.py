@@ -20,7 +20,7 @@ class MongoDataBase:
 
         print(status)
 
-    def procurarMongo(self):
+    def consultarMongo(self):
         pass
 
     def deletarMongo(self):
