@@ -112,7 +112,7 @@ class APINVD:
                 except Exception as e:
                     print(f"Erro inesperado ao processar {cpe_new}: {e}")
 
-                sleep(5)
+                sleep(7)
 
         print(self.lista_nao_encontrado)
         print("Lista criada e finalizado!")
@@ -122,10 +122,11 @@ class APINVD:
 class ProcessoJSON:
     def __init__(self, lista_nome_CPE: list) -> None:
         self.lista_nome_CPE = lista_nome_CPE
-        self.data = {}
+        self.data_com_CPE = {}
 
     def manipulacaoJson(self) -> dict:
 
+        cont = 0
         for numero_CPE in range(len(self.lista_nome_CPE)):
             with open(f'{self.lista_nome_CPE[numero_CPE]}.json', 'r') as arquivo:
                 texto = arquivo.read()
@@ -139,14 +140,21 @@ class ProcessoJSON:
                 print(f'-------------{self.lista_nome_CPE[numero_CPE]}----------------')
                 print(f'CVE ID: {cve_id} - Descrição: {descricao_en}')
                 print('-----------------------------')
-                self.data.update({cve_id: descricao_en})
+
+                # Nesta parte o faço a concatenação do contador com o CPE, pois existe um problema que se fosse colocar
+                # no dicionario somente o CVEs, ele não pegaria todos, e sim só o ultimo do arquivo.
+                # Tambem fiz um cast, pois só pode concatenar tipos de variaveis iguais.
+                cont += 1
+                #CPE_com_numero = f'CPE: {str(self.lista_nome_CPE[numero_CPE])} ' + f'Numero: {str(cont)}'
+
+                self.data_com_CPE.update({ f'ID: {str(cont)}': [{self.lista_nome_CPE[numero_CPE]:{cve_id: descricao_en}}]})
 
         print('+++++++++++++++++++++++++++++')
-        print(self.data)
+        print(self.data_com_CPE)
 
-        with open('data.json', 'w') as arquivo:
-            arquivo.write(json.dumps(self.data))
+        with open('data_com_CPE.json', 'w') as arquivo:
+            arquivo.write(json.dumps(self.data_com_CPE))
 
-        return self.data
+        #return self.data_com_CPE
 
 

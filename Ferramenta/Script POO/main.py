@@ -9,7 +9,6 @@ if __name__ == "__main__":
 
     # Etapa 2: Processamento do XML gerado pelo Nmap
     xml = ProcessoXML(f'saida_teste_1.xml')
-
     dicionario_CPE = xml.tratamentoXML()
 
     # Etapa 3: Consulta à API NVD
