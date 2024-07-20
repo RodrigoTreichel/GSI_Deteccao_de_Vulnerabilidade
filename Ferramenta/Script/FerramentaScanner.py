@@ -12,21 +12,26 @@ def varreduraRede():
 
     global IP_Rede
 
-    # Executando a biblioteca subprocess para obter o IP do dispositivo
-    IP_dispositivo = subprocess.run("ip -o addr show eth0 | awk '/scope global/ {print $4}'", shell=True, capture_output=True, text=True)
+    try:
 
-    # Tratamento do output pois sai todo o comando
-    IP_dispositivo = IP_dispositivo.stdout
+        # Executando a biblioteca subprocess para obter o IP do dispositivo
+        IP_dispositivo = subprocess.run("ip -o addr show eth0 | awk '/scope global/ {print $4}'", shell=True, capture_output=True, text=True)
 
-    # IP_dispositivo[0:14] serve para nao pegar o /n, pois o resultado é EX: 192.168.0.0/24/n
-    IP_CIDR = ipaddress.IPv4Network(IP_dispositivo[0:14], strict=False)
+        # Tratamento do output pois sai o comando inteiro
+        IP_dispositivo = IP_dispositivo.stdout
 
-    # Usando a biblioteca para obter o endereço da rede
-    IP_Rede = IP_CIDR.network_address
+        # IP_dispositivo[0:14] serve para nao pegar o /n, pois o resultado é EX: 192.168.0.0/24/n --> 192.168.0.0/24
+        IP_CIDR = ipaddress.IPv4Network(IP_dispositivo[0:14], strict=False)
 
-    print(f'Redes: {str(IP_Rede) + IP_dispositivo[11:14]}')
+        # Usando a biblioteca para obter o endereço da rede
+        IP_Rede = IP_CIDR.network_address
 
-    system(f'nmap -sV {str(IP_Rede) + IP_dispositivo[11:14]} -oX {IP_Rede}.xml')
+        print(f'Redes: {str(IP_Rede) + IP_dispositivo[11:14]}')
+
+        system(f'nmap -sV {str(IP_Rede) + IP_dispositivo[11:14]} -oX {IP_Rede}.xml')
+
+    except Exception as e:
+        print(f"Ocorreu um erro inesperado: {e}")
 
     # Teste usuario
     # while True:
