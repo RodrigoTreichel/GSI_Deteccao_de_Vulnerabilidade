@@ -21,14 +21,14 @@ def varreduraRede():
         IP_dispositivo = IP_dispositivo.stdout
 
         # IP_dispositivo[0:14] serve para nao pegar o /n, pois o resultado é EX: 192.168.0.0/24/n --> 192.168.0.0/24
-        IP_CIDR = ipaddress.IPv4Network(IP_dispositivo[0:14], strict=False)
+        IP_CIDR = ipaddress.IPv4Network(IP_dispositivo.replace('\n', ''), strict=False)
 
         # Usando a biblioteca para obter o endereço da rede
         IP_Rede = IP_CIDR.network_address
 
-        print(f'Redes: {str(IP_Rede) + IP_dispositivo[11:14]}')
+        print(f'Redes: {IP_CIDR}')
 
-        system(f'nmap -sV {str(IP_Rede) + IP_dispositivo[11:14]} -oX {IP_Rede}.xml')
+        system(f'nmap -sV {IP_CIDR} -oX {IP_Rede}.xml')
 
     except Exception as e:
         print(f"Ocorreu um erro inesperado: {e}")
