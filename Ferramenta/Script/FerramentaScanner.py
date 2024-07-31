@@ -1,12 +1,12 @@
+import ipaddress
 import os
-import ipaddress 
-from os import system
 import xml.etree.ElementTree as ET
 import requests
 import json
 from time import sleep
 from datetime import datetime
 import subprocess
+
 
 def varreduraRede():
 
@@ -28,7 +28,7 @@ def varreduraRede():
 
         print(f'Redes: {IP_CIDR}')
 
-        system(f'nmap -sV {IP_CIDR} -oX {IP_Rede}.xml')
+        os.system(f'nmap -sV {IP_CIDR} -oX {IP_Rede}.xml')
 
     except Exception as e:
         print(f"Ocorreu um erro inesperado: {e}")
@@ -99,7 +99,6 @@ def tratamentoXML(IP_Rede):
             print(f"Porta: {portid} | Status: {state} |  Protocolo: {protocol} | Serviço: {name} | Produto: {product} | Versão: {version} | Sistema Operacional: {ostype} | CPE: {cpe} | Informação Extra: {extrainfo} |")
         print('△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△')
 
-
 def apiNVD(dictCPE):
 
     # Para pesquisar o CVE no NVD precisa formatar o CPE
@@ -111,6 +110,7 @@ def apiNVD(dictCPE):
     global lista_nome_CPE
     lista_nome_CPE = []
     lista_nao_encontrado = []
+    dados_combinados = []
 
     caminho_diretorio = f'./JSON_{datetime.now()}'.replace(":", "_")
 
@@ -132,6 +132,8 @@ def apiNVD(dictCPE):
 
                 lista_nome_CPE.append(cpe_new_texto)
 
+                dados_combinados.append(nvd_json)
+
             except requests.RequestException as e:
                 print(f"Falha na solicitação para {cpe_new}: {e}")
                 lista_nao_encontrado.append(cpe_new)
@@ -142,13 +144,16 @@ def apiNVD(dictCPE):
 
             sleep(5)
 
+    with open(f'CVEs.json', 'w') as arquivo:
+        arquivo.write(json.dumps(dados_combinados))
+
     print(lista_nao_encontrado)
     print("Lista criada e finalizado!")
-
 
 def manipulacaoJson(lista_nome_CPE):
 
     data = {}
+
     for numero_CPE in range(len(lista_nome_CPE)):
 
         with open(f'{lista_nome_CPE[numero_CPE]}.json','r') as arquivo:
@@ -173,9 +178,8 @@ def manipulacaoJson(lista_nome_CPE):
         arquivo.write(json.dumps(data))
 
 
-
 varreduraRede()
-tratamentoXML(str(IP_Rede))
+tratamentoXML(IP_Rede)
 apiNVD(dictCPE)
 manipulacaoJson(lista_nome_CPE)
 
