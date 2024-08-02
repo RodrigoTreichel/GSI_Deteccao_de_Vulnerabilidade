@@ -1,6 +1,7 @@
 from FerramentaScanner import ProcessoXML, APINVD, ProcessoJSON
 from DB import MongoDataBase
 
+#teste heitor
 if __name__ == "__main__":
     # Etapa 1: Varredura de Rede
     # scanner = VarreduraRede()
